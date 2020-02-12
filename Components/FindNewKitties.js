@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
-import { StyleSheet, Text, View, Image, FlatList, TouchableOpacity, ActivityIndicator} from 'react-native';
+import { StyleSheet, Text, View, Image, FlatList, TouchableOpacity, ActivityIndicator, Alert} from 'react-native';
 import axios from "axios";
 import Modal, { ModalContent, ModalTitle, ModalFooter, ModalButton, } from 'react-native-modals';
 import KittiesModal from 'kitties/Components/Modal/kittiesModal.js'
-
+import { Ionicons } from '@expo/vector-icons';
 
 const appliColor = "#F7931A"
 
@@ -73,7 +73,7 @@ flatlistCrypto = () => {
   );
   } else {
     return(
-      <View>
+      <View style={styles.ActivityIndicatorConteneur}>
           <ActivityIndicator
             color="#009688"
             size="large"
@@ -89,12 +89,35 @@ renderItem(item) {
     <TouchableOpacity  
              onPress={() => {this.modalKittiesInfos(item)}}
              style={styles.box_icone}>
-            <Image style={{flex: 1, width: 200, height: 200 }}  source={{uri: item.image}}></Image>
-            <Text style={{ position: 'absolute', bottom: 10,}}># {item.id} - {item.name} </Text>
+            <TouchableOpacity style={styles.action} onPress={() => {this.alert()}}>
+                <Ionicons name="ios-add-circle-outline" size={30} color="#696969" />
+            </TouchableOpacity>
+            <Image style={styles.catPicture}  source={{uri: item.image}}></Image>
+            <Text style={styles.name}># {item.id} - {item.name} </Text>
     </TouchableOpacity>
 
 )
 };
+
+alert(){
+    return(
+      Alert.alert(
+        'Adopt a new cat ?',
+        'If you confirm it will be automatically added and you will be able to find it and modify it in your portfolio !',      
+        [
+          {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+          {
+            text: 'Cancel',
+            onPress: () => console.log('Cancel Pressed'),
+            style: 'cancel',
+          },
+          {text: 'OK', onPress: () => console.log('OK Pressed')},
+        ],
+        {cancelable: false},
+      )
+  
+    )
+  }
 
 
 /* #############################################################################
@@ -119,7 +142,7 @@ renderItem(item) {
 
     render() {
         return (
-            <View>
+            <View style={{flex:1}}>
               {this.flatlistCrypto()}
 
 
@@ -176,8 +199,31 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 4,
     borderColor: 'white',
+  },
+  action:{
+    flex: 1,
+    marginTop: 5,
+    marginRight: 5,
+    justifyContent: 'center', 
+    alignItems: 'flex-end'
+  },
+  catPicture:{
+    flex: 1, 
+    width: 190,
+    height: 190 ,
+  },
+  name:{
+    position: 'absolute',
+    left: 0, 
+    right: 0, 
+    bottom: 15,
+    justifyContent: 'center',
+    textAlign: 'center'
+  },
+  ActivityIndicatorStyle: {
+    marginTop: '50%',
     justifyContent: 'center', 
     alignItems: 'center'
-  },
+  }
 })
 
