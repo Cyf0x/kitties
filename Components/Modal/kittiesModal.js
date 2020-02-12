@@ -60,10 +60,10 @@ flatlistCrypto = (user_interests, isLoading) => {
 ###################            HTLM/JSX             ############################
 ##############################################################################*/
   render() {
-    const user_firstname = this.props.content[0].name;
+    const name= this.props.content[0].name;
     const bio = this.props.content[0].bio
     const avatar = this.props.content[0].image;
-    const breed = this.props.content[0].ragamuffin
+    const breed = this.props.content[0].breed
     const color = this.props.content[0]. color
     const id = this.props.content[0].id
     return (
@@ -71,15 +71,23 @@ flatlistCrypto = (user_interests, isLoading) => {
         <ImageBackground
           source={{uri : this.props.content[0].image}}
           style={styles.header}>
-          <Text style={styles.pseudo}>{user_firstname}</Text>
+          <Text style={styles.pseudo}>{name}</Text>
         </ImageBackground>
 
-
-            <View style={styles.bodyheader}>
-              <Text style={styles.description}>{bio}
-             </Text>
-            </View>
+        <View style={styles.bodyheader}>
+          <Text style={styles.description}>
+            <Text style={{fontWeight: "bold"}}>ID </Text>
+            <Text>#{id}  </Text>
+            <Text style={{fontWeight: "bold"}}>Breed </Text>
+            <Text>{breed}  </Text>
+            <Text style={{fontWeight: "bold"}}>Coat </Text>
+            <Text>{color}</Text>
+          </Text>
+          {this.FlatListItemSeparator()}
+          <Text style={[styles.description, {fontWeight: "bold", marginTop: 10,}]}>Description </Text>
+          <Text style={styles.description}>{bio}</Text>
         </View>
+      </View>
  
     );
   }
@@ -95,37 +103,19 @@ const styles = StyleSheet.create({
     height:300,
     alignItems: 'center',
   },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 63,
-    borderWidth: 4,
-    paddingBottom: 5,
-    backgroundColor: 'white',
-    borderColor: "white",
-    alignSelf:'flex-start',
-    position: 'absolute',
-    marginTop:15,
-    marginLeft: 18
-  },
   pseudo:{
     fontSize:28,
     color:"white",
     fontWeight:'600',
   },
   bodyheader:{
-
     marginTop: 5,
   },
-  logo:{
-    alignSelf:'flex-start',    paddingBottom: 5,
-    position: 'absolute',
-    marginTop: 29,
-    marginLeft: 18
-  },
+
   description:{
-    fontSize:14,
-    color: "#696969",
+    marginTop: 5,
+    fontSize:15,
+    color: "#4F4F4F",
     marginLeft: 22,
     marginRight: 15,
     textAlign:  'justify',
@@ -173,5 +163,6 @@ const styles = StyleSheet.create({
   progress: {
   marginTop: 25,
   alignItems: 'center',
+  justifyContent: 'center'
   },
 });
