@@ -113,7 +113,7 @@ const DrawerNavigatorExample = createDrawerNavigator({
 },
 
   {
-  initialRouteName: 'Screen1',
+  initialRouteName: 'Screen3',
   // unmountInactiveRoutes: true,
   contentComponent: props => <DrawerContent {...props} />,
   drawerOpenRoute: 'DrawerOpen',
