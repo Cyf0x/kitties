@@ -2,11 +2,14 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Navigation from 'kitties/Navigation/Navigation';
 import 'react-native-gesture-handler'; 
-
+import { Provider } from 'react-redux'
+import Store from 'kitties/Reducers/Store/configureStore.js'
 
 export default function App() {
   return (
-    <Navigation  />
+    <Provider store={Store}>
+      <Navigation  />
+    </Provider>
   );
 }
 
