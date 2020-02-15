@@ -5,8 +5,9 @@ import * as Permissions from 'expo-permissions';
 import { Camera } from 'expo-camera';
 import Constants from 'expo-constants';
 import { Button } from "react-native-elements";
+import { connect } from 'react-redux'
 
-export default class UseCamera extends Component {
+class UseCamera extends React.Component {
 
   state = {
   };
@@ -28,9 +29,18 @@ export default class UseCamera extends Component {
                },
           );
           photo.exif.newPosition = this.state.position
-          this.setState({imageuri: photo.uri }, () => {this.props.navigation.navigate('NewKitties', ({imageuri: this.state.imageuri}))});
+
+
+          this.setState({imageUri: photo.uri }, () => {this.savePictureToRedux()});
           };
       }
+
+    savePictureToRedux() {
+      console.log('imageeeeeeeeeeeeee', this.state.imageUri)
+      const action = { type: "ADD_IMAGE", value: this.state.imageUri }
+      this.props.dispatch(action)
+      this.props.navigation.navigate('NewKitties')
+    }
   
 
     render() {
@@ -120,3 +130,12 @@ const styles = StyleSheet.create({
     }
   });
   
+
+  const mapStateToProps = (state) => {
+    return {
+      imageUri: state.imageUri,
+      newcats: state.newCats
+    }
+  }
+  
+  export default connect(mapStateToProps)(UseCamera)
