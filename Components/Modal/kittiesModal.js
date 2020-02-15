@@ -6,16 +6,35 @@ import * as SQLite from "expo-sqlite";
 const db = SQLite.openDatabase("db.db");
 const colorInput = "#35819a";
 
+const color = [
+  '#ED8970',
+  '#EDB970',
+  '#EDEA70',
+  '#A2ED70',
+  '#73ED70',
+  '#70EDA1',
+  '#70EDE0',
+  '#70BFED',
+  '#70A5ED',
+  '#707BED',
+  '#9D70ED',
+  '#DB70ED',
+  '#ED70E1',
+  '#ED70AB',
+  '#ED708C',
+]
+
 export default class KittiesModal extends Component {
 
   state = {
     user_data: "",
     data: [],
+    color: null,
   }
 
   componentDidMount() {
-    console.log(this.props.content)
-    
+    const randomColor = color[Math.floor(Math.random() * color.length)];
+    this.setState({color: randomColor,})
   }
 
 
@@ -70,7 +89,7 @@ flatlistCrypto = (user_interests, isLoading) => {
       <View style={{flex:1}}>
         <ImageBackground
           source={{uri : this.props.content[0].image}}
-          style={styles.header}>
+          style={[styles.header,{backgroundColor: this.state.color}]}>
           <Text style={styles.pseudo}>{name}</Text>
         </ImageBackground>
 
@@ -99,7 +118,6 @@ flatlistCrypto = (user_interests, isLoading) => {
 
 const styles = StyleSheet.create({
   header:{
-    backgroundColor: "#00BFFF",
     height:300,
     alignItems: 'center',
   },
@@ -121,39 +139,7 @@ const styles = StyleSheet.create({
     textAlign:  'justify',
     marginBottom: 6
   },
-  tag: {
-    flex: 1,
-    marginTop: 6,
-    fontSize:17,
-    justifyContent: 'center',
-    color: colorInput,
-  },
-  flatTrue: {
-    backgroundColor: '#F48C30',
-    padding: 20,
-    marginVertical: 3,
-    marginHorizontal: 5,
-    width: 100,
-    borderRadius:7,
-    elevation:5,
-    shadowOffset: { width: 5, height: 5 },
-    shadowColor: "grey",
-    shadowOpacity: 0.5,
-    shadowRadius: 10,
-  },
-  FlatFalse: {
-    backgroundColor: '#C0BFBF',
-    padding: 20,
-    marginVertical: 3,
-    marginHorizontal: 5,
-    width: 100,
-    borderRadius:7,
-    elevation:5,
-    shadowOffset: { width: 5, height: 5 },
-    shadowColor: "grey",
-    shadowOpacity: 0.5,
-    shadowRadius: 10,
-  },
+
   itemTitle: {
     textAlign: 'center',
     fontSize: 12,

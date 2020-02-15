@@ -8,7 +8,7 @@ import { MaterialIcons, Feather, MaterialCommunityIcons } from '@expo/vector-ico
 import KittiesList from 'kitties/Components/KittiesList';
 import NewKitties from 'kitties/Components/NewKitties';
 import FindNewKitties from 'kitties/Components/FindNewKitties'
-
+import Camera from 'kitties/Components/Camera'
 
 
 const backgroundColor = "#FFB6E2"
@@ -54,7 +54,7 @@ const KittiesList_StackNavigator = createStackNavigator({
 
 const NewKitties_StackNavigator = createStackNavigator({
 
-    NewKitties: {
+  NewKitties: {
     screen: NewKitties,
     navigationOptions: ({ navigation }) => ({
         title: 'NewKitties',
@@ -65,13 +65,27 @@ const NewKitties_StackNavigator = createStackNavigator({
         headerTintColor: 'white',
       }),
   },
+  Camera: {
+    screen: Camera,
+    navigationOptions: {
+      title: 'Take a picture',
+      headerStyle: {
+        backgroundColor: "white",
+        elevation: 0,
+        shadowOpacity: 0,
+        borderBottomWidth: 0,
+      },
+      headerTintColor: 'black',
+    }
+  },
+
 })
 
 const FindNewKitties_StackNavigator = createStackNavigator({
     FindNewKitties: {
       screen: FindNewKitties,
       navigationOptions: ({ navigation }) => ({
-        title: 'findNewKitties',
+        title: 'God mode',
         headerLeft: () => <NavigationDrawerStructure navigationProps={navigation} />,
         headerStyle: {
           backgroundColor: backgroundColor,
@@ -86,7 +100,7 @@ const DrawerNavigatorExample = createDrawerNavigator({
   Screen1: {
     screen: KittiesList_StackNavigator,
     navigationOptions: {
-      drawerLabel: 'KittiesList',
+      drawerLabel: 'Portfolio',
       drawerIcon: () => (
         <MaterialIcons name="account-circle" size={25} color="#F7931A" />
       )
@@ -95,7 +109,7 @@ const DrawerNavigatorExample = createDrawerNavigator({
   Screen2: {
     screen: NewKitties_StackNavigator,
     navigationOptions: {
-      drawerLabel: 'Newkitties',
+      drawerLabel: 'God mode',
       drawerIcon: () => (
         <MaterialIcons name="account-circle" size={25} color="#F7931A" />
       )
@@ -104,7 +118,7 @@ const DrawerNavigatorExample = createDrawerNavigator({
   Screen3: {
     screen: FindNewKitties_StackNavigator,
     navigationOptions: {
-      drawerLabel: 'FindNewKitties',
+      drawerLabel: 'Adopts a cat',
       drawerIcon: () => (
         <MaterialIcons name="account-circle" size={25} color="#F7931A" />
       )
@@ -113,7 +127,7 @@ const DrawerNavigatorExample = createDrawerNavigator({
 },
 
   {
-  initialRouteName: 'Screen3',
+  initialRouteName: 'Screen2',
   // unmountInactiveRoutes: true,
   contentComponent: props => <DrawerContent {...props} />,
   drawerOpenRoute: 'DrawerOpen',
