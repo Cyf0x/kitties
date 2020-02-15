@@ -103,7 +103,7 @@ alert(){
     return(
       Alert.alert(
         'Adopt a new cat ?',
-        'If you confirm it will be automatically added and you will be able to find it and modify it in your portfolio !',      
+        `are you really sure you want to adopt a new cat? Small cat doesn't mean small responsibility !`,      
         [
           {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
           {
