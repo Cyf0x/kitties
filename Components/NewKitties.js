@@ -8,7 +8,9 @@ import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { Button } from "react-native-elements";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { connect } from 'react-redux'
+import * as SQLite from "expo-sqlite";
 
+const db = SQLite.openDatabase("db.db");
 const { State: TextInputState } = TextInput;
 const CANCEL_INDEX = 0
 const DESTRUCTIVE_INDEX = 4
@@ -89,12 +91,6 @@ class NewKitties extends React.Component {
     this.keyboardDidHideSub.remove();
   }
 
-  _toggleFavorite() {
-    const action = { type: "ADD_IMAGE", value: this.state.image }
-    this.props.dispatch(action)
-  }
-
-
 
 componentDidUpdate(previousProps, previousState) {
   const randomColor = color[Math.floor(Math.random() * color.length)];
@@ -104,10 +100,7 @@ componentDidUpdate(previousProps, previousState) {
       color: randomColor,
       displayImage: true,
     })
-    console.log("################", previousProps.imageUri[0])
 }
-
-
 }
 
   getPermissionAsync = async () => {
@@ -129,8 +122,9 @@ componentDidUpdate(previousProps, previousState) {
     });
 
     if (!result.cancelled) {
-      console.log('uri : ', result.uri)
-      this.setState({image: result.uri }, () => {this.props.navigation.navigate('NewKitties', ({image: this.state.image}))});
+      const action = { type: "ADD_IMAGE", value: result.uri }
+      this.props.dispatch(action)
+      this.props.navigation.navigate('NewKitties')
     }
   };
 
@@ -162,11 +156,9 @@ componentDidUpdate(previousProps, previousState) {
     } else if(index == 3) {
       const randomElement = catPicture[Math.floor(Math.random() * catPicture.length)];
       const randomColor = color[Math.floor(Math.random() * color.length)];
-      this.setState({
-        image: randomElement,
-        color: randomColor,
-        displayImage: true}, () => {})
-
+      const action = { type: "ADD_IMAGE", value: randomElement }
+      this.props.dispatch(action)
+      this.props.navigation.navigate('NewKitties')
     }
 
   }
@@ -193,6 +185,74 @@ componentDidUpdate(previousProps, previousState) {
     )
   }
   }
+
+
+/* #############################################################################
+      Insert de l'user dans la base local et redirection vers la page Hobby
+##############################################################################*/
+insertUser() {
+    let query =
+      "INSERT INTO cat (cat_biography, cat_name, cat_breed, cat_coat, cat_image)VALUES(?,?,?,?,?)";
+    let params = [
+      this.state.biography,
+      this.state.name,
+      this.state.breed,
+      this.state.coat,
+      this.state.image,
+    ];
+    db.transaction(tx => {
+      tx.executeSql(
+        query,
+        params,
+        (tx, results) => {
+          console.log("Success", results);
+          this.recoverUser()
+        },
+        function(tx, err) {
+          console.log("Erreur" + err);
+        }
+      );
+    });
+}
+
+recoverUser() {
+  let query = "select * from cat";
+  let params = [];
+  db.transaction(tx => {
+    tx.executeSql(
+      query,
+      params,
+      (_, { rows: { _array } }) => {
+        this._toggleFavorite(_array)
+      },
+      function(tx, err) {
+        console.log("Erreur" + err);
+      }
+    );
+  });
+}
+
+_toggleFavorite(_array) {
+  const action = { 
+    type: "ADD_CAT", 
+      value: _array
+    }
+  this.props.dispatch(action)
+  this.setState({
+    image: "",
+    biography: "",
+    name: "",
+    breed: "",
+    coat: "",
+    displayImage: false
+  }, () => { })
+
+} 
+
+
+
+
+
   // Verification  champs sont bien remplis
   canBeSubmit() {
     const { biography, name, coat, breed } = this.state;
@@ -207,7 +267,6 @@ componentDidUpdate(previousProps, previousState) {
   render() {
     const { shift } = this.state;
     const isEnabled = this.canBeSubmit()
-    // console.log(this.props)
 
     return (
       <KeyboardAwareScrollView
@@ -231,7 +290,7 @@ componentDidUpdate(previousProps, previousState) {
               multiline={true}
               autoCapitalize = "none"
               onChangeText={(summary) => this.setState({biography: summary})}
-              value={this.state.summary}
+              value={this.state.biography}
               />
           {this.FlatListItemSeparator()}
 
@@ -241,7 +300,10 @@ componentDidUpdate(previousProps, previousState) {
                    placeholder= {this.state.namePlaceHolder}
                    placeholderTextColor = {colorInput}
                    autoCapitalize = "none"
-                   onChangeText = {(text) => this.setState({name: text})}/>
+                   onChangeText = {(text) => this.setState({name: text})}
+                   value={this.state.name}
+                   
+                   />
          {this.FlatListItemSeparator()}
 
          <Text style = {styles.text}>Breed</Text>
@@ -250,7 +312,9 @@ componentDidUpdate(previousProps, previousState) {
                    placeholder= {this.state.breedPlaceHolder}
                    placeholderTextColor = {colorInput}
                    autoCapitalize = "none"
-                   onChangeText = {(text) => this.setState({breed: text})}/>
+                   onChangeText = {(text) => this.setState({breed: text})}
+                   value={this.state.breed}
+                   />
          {this.FlatListItemSeparator()}
 
          <Text style = {styles.text}>Coat</Text>
@@ -259,7 +323,9 @@ componentDidUpdate(previousProps, previousState) {
                    placeholder= {this.state.coatPlaceHolder}
                    placeholderTextColor = {colorInput}
                    autoCapitalize = "none"
-                   onChangeText = {(text) => this.setState({coat: text})}/>
+                   onChangeText = {(text) => this.setState({coat: text})}
+                   value={this.state.coat}
+                   />
          {this.FlatListItemSeparator()}
 
 
@@ -268,7 +334,7 @@ componentDidUpdate(previousProps, previousState) {
             <Button
               title="Create new cat"
               buttonStyle={styles.button}
-              onPress={() => {this._toggleFavorite()}}
+              onPress={() => {this.insertUser()}}
             />
           </View>
         
@@ -377,7 +443,7 @@ const styles = StyleSheet.create({
 const mapStateToProps = (state) => {
   return {
     imageUri: state.imageUri,
-    newcats: state.newCats
+    myCats: state.myCats
   }
 }
 
