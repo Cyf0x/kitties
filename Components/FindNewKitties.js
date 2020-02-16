@@ -4,10 +4,14 @@ import axios from "axios";
 import Modal, { ModalContent, ModalTitle, ModalFooter, ModalButton, } from 'react-native-modals';
 import KittiesModal from 'kitties/Components/Modal/kittiesModal.js'
 import { Ionicons } from '@expo/vector-icons';
+import { connect } from 'react-redux'
+import * as SQLite from "expo-sqlite";
+
+const db = SQLite.openDatabase("db.db");
 
 const appliColor = "#F7931A"
 
-export default class FindNewKitties extends Component {
+class FindNewKitties extends React.Component {
 
   state = {
       data: [],
@@ -20,86 +24,85 @@ export default class FindNewKitties extends Component {
     this.requestApi()
   }
 
-
-requestApi() {
-  let url = `https://public.api.cryptokitties.co/v1/kitties?kittyId=2290-2312`
-  let token = '9VN5Q1dK44pAAraqJJDTWabt6eaAsJm5a1JyeWnVCKQ'
-  axios
-  .get(url, {headers: { 'x-api-token': token }})
-  .then(res => {
-    if(res.status === 200){         
-      this.setState({data: res.data.kitties}, () => { this.parsObject() })
-    };
-  })
-  .catch(err => {
-    console.log("erreur axios file kittieList.js", err)
-  });
-}
-
-parsObject() {
-  let dict = []
-  for (const element of this.state.data) {
-    const nameSplit = element.name.split(' ');
-    const myCatName = [];
-    if(nameSplit[0].length < 3){
-      myCatName.push("Minou")
-    } else {
-      myCatName.push(nameSplit[0])
-    }
-    dict.push({"id": element.id,"name": myCatName[0], "bio": element.bio, "image": element.image_url_png, "color": element.color, "breed": element.enhanced_cattributes[0].description})
+  requestApi() {
+    let url = `https://public.api.cryptokitties.co/v1/kitties?kittyId=2290-2312`
+    let token = '9VN5Q1dK44pAAraqJJDTWabt6eaAsJm5a1JyeWnVCKQ'
+    axios
+    .get(url, {headers: { 'x-api-token': token }})
+    .then(res => {
+      if(res.status === 200){         
+        this.setState({data: res.data.kitties}, () => { this.parsObject() })
+      };
+    })
+    .catch(err => {
+      console.log("erreur axios file kittieList.js", err)
+    });
   }
-  this.setState({
-    data : dict,
-    isLoading: true,
-  })
-}
+
+  parsObject() {
+    let dict = []
+    for (const element of this.state.data) {
+      const nameSplit = element.name.split(' ');
+      const myCatName = [];
+      if(nameSplit[0].length < 3){
+        myCatName.push("Minou")
+      } else {
+        myCatName.push(nameSplit[0])
+      }
+      dict.push({"cat_id": element.id,"cat_name": myCatName[0], "cat_biography": element.bio, "cat_image": element.image_url_png, "cat_coat": element.color, "cat_breed": element.enhanced_cattributes[0].description})
+    }
+    this.setState({
+      data : dict,
+      isLoading: true,
+    })
+  }
 
 
 /* #############################################################################
 Viewing cats in the application from the state
 ##############################################################################*/
-flatlistCrypto = () => {
+  flatlistCrypto = () => {
 
-  if (this.state.isLoading === true) {
-  return (
-    <View>
-        <FlatList
-        numColumns={2}
-        data={this.state.data}
-        keyExtractor={item => item.id.toString()}
-        renderItem={({ item }) => this.renderItem(item)}
-        />
-    </View>
-  );
-  } else {
-    return(
-      <View style={styles.ActivityIndicatorConteneur}>
-          <ActivityIndicator
-            color="#009688"
-            size="large"
-            style={styles.ActivityIndicatorStyle}
+    if (this.state.isLoading === true) {
+    return (
+      <View>
+          <FlatList
+          numColumns={2}
+          data={this.state.data}
+          keyExtractor={item => item.cat_id.toString()}
+          renderItem={({ item }) => this.renderItem(item)}
           />
       </View>
-    )
-  }
-};
+    );
+    } else {
+      return(
+        <View style={styles.ActivityIndicatorConteneur}>
+            <ActivityIndicator
+              color="#009688"
+              size="large"
+              style={styles.ActivityIndicatorStyle}
+            />
+        </View>
+      )
+    }
+  };
 
-renderItem(item) {
-  return (
-    <TouchableOpacity  
-             onPress={() => {this.modalKittiesInfos(item)}}
-             style={styles.box_icone}>
-            <TouchableOpacity style={styles.action} onPress={() => {this.alert()}}>
-                <Ionicons name="ios-add-circle-outline" size={30} color="#696969" />
-            </TouchableOpacity>
-            <Image style={styles.catPicture}  source={{uri: item.image}}></Image>
-            <Text style={styles.name}># {item.id} - {item.name} </Text>
-    </TouchableOpacity>
+  renderItem(item) {
+    return (
+      <TouchableOpacity  
+              onPress={() => {console.log(item.cat_id)}}
+              style={styles.box_icone}>
+              <TouchableOpacity style={styles.action} onPress={() => {this.alert(item)}}>
+                  <Ionicons name="ios-add-circle-outline" size={30} color="#696969" />
+              </TouchableOpacity>
+              <Image style={styles.catPicture}  source={{uri: item.cat_image}}></Image>
+              <Text style={styles.name}># {item.item.cat_id} - {item.cat_name} </Text>
+      </TouchableOpacity>
 
-)
-};
+  )
+  };
 
-alert(){
+alert(item){
     return(
       Alert.alert(
         'Adopt a new cat ?',
@@ -111,13 +114,71 @@ alert(){
             onPress: () => console.log('Cancel Pressed'),
             style: 'cancel',
           },
-          {text: 'OK', onPress: () => console.log('OK Pressed')},
+          {text: 'OK', onPress: () => {this.insertUser(item)}},
         ],
         {cancelable: false},
       )
   
     )
   }
+
+
+/* #############################################################################
+      Insert de l'user dans la base local et redirection vers la page Hobby
+##############################################################################*/
+insertUser(item) {
+  let query =
+    "INSERT INTO cat (cat_biography, cat_name, cat_breed, cat_coat, cat_image)VALUES(?,?,?,?,?)";
+  let params = [
+    item.bio, 
+    item.name,
+    item.breed,
+    item.color,
+    item.image,
+  ];
+  db.transaction(tx => {
+    tx.executeSql(
+      query,
+      params,
+      (tx, results) => {
+        console.log("Success", results);
+        this.recoverUser()
+      },
+      function(tx, err) {
+        console.log("Erreur" + err);
+      }
+    );
+  });
+}
+
+recoverUser() {
+let query = "select * from cat";
+let params = [];
+db.transaction(tx => {
+  tx.executeSql(
+    query,
+    params,
+    (_, { rows: { _array } }) => {
+      this._toggleFavorite(_array)
+    },
+    function(tx, err) {
+      console.log("Erreur" + err);
+    }
+  );
+});
+}
+
+_toggleFavorite(_array) {
+console.log('#######################################',_array)
+const action = { 
+  type: "ADD_CAT", 
+    value: _array
+  }
+this.props.dispatch(action)
+} 
+
+
+
 
 
 /* #############################################################################
@@ -227,3 +288,12 @@ const styles = StyleSheet.create({
   }
 })
 
+
+const mapStateToProps = (state) => {
+  return {
+    imageUri: state.imageUri,
+    myCats: state.myCats
+  }
+}
+
+export default connect(mapStateToProps)(FindNewKitties)
