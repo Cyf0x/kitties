@@ -1,8 +1,8 @@
 const initialState = { imageUri: [], myCats:[] }
 
 function reducer(state = initialState, action) {
-    console.log('init :', state)
   let nextState
+  console.log(action)
   switch (action.type) {
     case 'ADD_IMAGE':
         nextState = {
@@ -15,7 +15,7 @@ function reducer(state = initialState, action) {
     case 'ADD_CAT':
       nextState = {
         ...state,
-        myCats: [...state.myCats, action.value],
+        myCats: [action.value],
       }
       return nextState || state
     
