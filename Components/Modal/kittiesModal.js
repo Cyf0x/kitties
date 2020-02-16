@@ -79,16 +79,16 @@ flatlistCrypto = (user_interests, isLoading) => {
 ###################            HTLM/JSX             ############################
 ##############################################################################*/
   render() {
-    const name= this.props.content[0].name;
-    const bio = this.props.content[0].bio
-    const avatar = this.props.content[0].image;
-    const breed = this.props.content[0].breed
-    const color = this.props.content[0]. color
-    const id = this.props.content[0].id
+    const name= this.props.content[0].cat_name;
+    const bio = this.props.content[0].cat_biography
+    const avatar = this.props.content[0].cat_image;
+    const breed = this.props.content[0].cat_breed
+    const color = this.props.content[0].cat_coat
+    const id = this.props.content[0].cat_id
     return (
       <View style={{flex:1}}>
         <ImageBackground
-          source={{uri : this.props.content[0].image}}
+          source={{uri : avatar}}
           style={[styles.header,{backgroundColor: this.state.color}]}>
           <Text style={styles.pseudo}>{name}</Text>
         </ImageBackground>
