@@ -174,7 +174,7 @@ value  #########################################################################
 flatlistCat = () => {
     const reduxSaveCat = this.props.myCats[0]
     const randomElement = catPicture[Math.floor(Math.random() * catPicture.length)];
-    if(reduxSaveCat.length > 0){
+    if(reduxSaveCat && reduxSaveCat.length > 0){
       return (
         <View>
             <FlatList
