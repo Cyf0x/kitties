@@ -1,4 +1,4 @@
-# Foobar
+# Kitties App
 
 Kitties is a native react cat profile management application.
 
