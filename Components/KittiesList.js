@@ -1,11 +1,12 @@
 import React, {Component} from 'react';
-import { StyleSheet, Text, View, Image, FlatList, TouchableOpacity, ActivityIndicator, Alert} from 'react-native';
+import { StyleSheet, Text, View, Image, FlatList, TouchableOpacity, ActivityIndicator, Alert, ImageBackground} from 'react-native';
 import { connect } from 'react-redux'
 import * as SQLite from "expo-sqlite";
 import { Ionicons } from '@expo/vector-icons';
 import { ActionSheetCustom as ActionSheet } from 'react-native-custom-actionsheet'
 import Modal, { ModalContent, ModalFooter, ModalButton, } from 'react-native-modals';
 import KittiesModal from 'kitties/Components/Modal/kittiesModal.js'
+import { catPicture, color, colorInput} from 'kitties/Functions/function'
 
 //Intialization of the database
 const db = SQLite.openDatabase("db.db");
@@ -172,16 +173,27 @@ value  #########################################################################
 ##############################################################################*/
 flatlistCat = () => {
     const reduxSaveCat = this.props.myCats[0]
-    return (
-      <View>
-          <FlatList
-          numColumns={2}
-          data={reduxSaveCat}
-          keyExtractor={item => item.cat_id.toString()}
-          renderItem={({ item }) => this.renderItem(item)}
-          />
-      </View>
-    );
+    const randomElement = catPicture[Math.floor(Math.random() * catPicture.length)];
+    if(reduxSaveCat.length > 0){
+      return (
+        <View>
+            <FlatList
+            numColumns={2}
+            data={reduxSaveCat}
+            keyExtractor={item => item.cat_id.toString()}
+            renderItem={({ item }) => this.renderItem(item)}
+            />
+        </View>
+      );
+    } else {
+      return(
+        <View style={{alignItems: 'center'}}>
+          <Text style={styles.noCatText}>No cat yet. Create a new cat or adopt a cat to see this section to be filled in.</Text>
+          <ImageBackground style={styles.catPicture} source={{uri: 'https://img.cryptokitties.co/0x06012c8cf97bead5deae237070f9587f8e7a266d/1137672.png'}}></ImageBackground>
+        </View>
+      )
+    }
+
     }
 
 renderItem(item) {
@@ -203,6 +215,7 @@ renderItem(item) {
 ###################            HTLM/JSX             ############################
 ##############################################################################*/
   render() {
+    console.log(this.props.myCats[0])
     return (
       <View>
         {this.flatlistCat()}
@@ -254,6 +267,20 @@ renderItem(item) {
 #####################    StyleSheet    #########################################
 ##############################################################################*/
 const styles = StyleSheet.create({
+    nocatPicture:{
+    width: 500,
+    height: 500,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  noCatText:{
+    justifyContent: 'center',
+    textAlign: 'center',
+    marginTop: 25,
+    fontSize: 20,
+
+    marginBottom: 25,
+  },
   box_icone: {
     flex:1/2,
     backgroundColor: '#DCFAE1',
