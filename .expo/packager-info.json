@@ -1,10 +1,10 @@
 {
-  "devToolsPort": 19002,
+  "devToolsPort": 19003,
   "expoServerPort": 19000,
   "packagerPort": 19001,
-  "packagerPid": 11321,
+  "packagerPid": 6047,
   "expoServerNgrokUrl": "https://v3-dkp.kali00.kitties.exp.direct",
   "packagerNgrokUrl": "https://packager.v3-dkp.kali00.kitties.exp.direct",
-  "ngrokPid": 11373,
+  "ngrokPid": 6125,
   "webpackServerPort": null
 }
