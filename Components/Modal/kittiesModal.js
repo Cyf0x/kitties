@@ -87,11 +87,17 @@ flatlistCrypto = (user_interests, isLoading) => {
     const id = this.props.content[0].cat_id
     return (
       <View style={{flex:1}}>
-        <ImageBackground
+        <View  style={[styles.header,{backgroundColor: this.state.color}]}>
+        <Text style={styles.pseudo}>{name}</Text>
+        <Image
+
           source={{uri : avatar}}
-          style={[styles.header,{backgroundColor: this.state.color}]}>
-          <Text style={styles.pseudo}>{name}</Text>
-        </ImageBackground>
+          style={{flex: 1}}>
+        </Image>
+
+
+        </View>
+
 
         <View style={styles.bodyheader}>
           <Text style={styles.description}>
@@ -118,13 +124,14 @@ flatlistCrypto = (user_interests, isLoading) => {
 
 const styles = StyleSheet.create({
   header:{
-    height:300,
-    alignItems: 'center',
+    flex: 1,
+
   },
   pseudo:{
     fontSize:28,
     color:"white",
     fontWeight:'600',
+    textAlign: 'center'
   },
   bodyheader:{
     marginTop: 5,
