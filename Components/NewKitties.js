@@ -9,11 +9,17 @@ import { Button } from "react-native-elements";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { connect } from 'react-redux'
 import * as SQLite from "expo-sqlite";
+import { catPicture, color, colorInput} from 'kitties/Functions/function'
 
+//Intialization of the database
 const db = SQLite.openDatabase("db.db");
+
+// Constant of dynamic management of the view/keyboard display
 const { State: TextInputState } = TextInput;
 const CANCEL_INDEX = 0
 const DESTRUCTIVE_INDEX = 4
+
+// Constant initialization of the actionsheet element
 const options = [
   'Cancel',
   {
@@ -30,39 +36,8 @@ const options = [
   },
 ]
 const title = <Text style={{ color: 'crimson', fontSize: 18 }}>Which one do you like?</Text>
-const catPicture = [
-'https://img.cryptokitties.co/0x06012c8cf97bead5deae237070f9587f8e7a266d/1137652.png',
-'https://img.cryptokitties.co/0x06012c8cf97bead5deae237070f9587f8e7a266d/1137662.png',
-'https://img.cryptokitties.co/0x06012c8cf97bead5deae237070f9587f8e7a266d/1137672.png',
-'https://img.cryptokitties.co/0x06012c8cf97bead5deae237070f9587f8e7a266d/1835993.png',
-'https://img.cryptokitties.co/0x06012c8cf97bead5deae237070f9587f8e7a266d/1836001.png',
-'https://img.cryptokitties.co/0x06012c8cf97bead5deae237070f9587f8e7a266d/1825688.png',
-'https://img.cryptokitties.co/0x06012c8cf97bead5deae237070f9587f8e7a266d/221.png',
-'https://img.cryptokitties.co/0x06012c8cf97bead5deae237070f9587f8e7a266d/1825314.png',
-'https://img.cryptokitties.co/0x06012c8cf97bead5deae237070f9587f8e7a266d/1338265.png',
-'https://img.cryptokitties.co/0x06012c8cf97bead5deae237070f9587f8e7a266d/1143336.png',
-'https://img.cryptokitties.co/0x06012c8cf97bead5deae237070f9587f8e7a266d/1180980.png',
-]
 
-const color = [
-  '#ED8970',
-  '#EDB970',
-  '#EDEA70',
-  '#A2ED70',
-  '#73ED70',
-  '#70EDA1',
-  '#70EDE0',
-  '#70BFED',
-  '#70A5ED',
-  '#707BED',
-  '#9D70ED',
-  '#DB70ED',
-  '#ED70E1',
-  '#ED70AB',
-  '#ED708C',
-]
 
-const colorInput = "#ED70AB"
 
 class NewKitties extends React.Component {
   state = {
@@ -81,28 +56,46 @@ class NewKitties extends React.Component {
     coat: '',
   }
 
+  
   componentDidMount() {
+    // dynamic management view and keyboard mounting
     this.keyboardDidShowSub = Keyboard.addListener('keyboardDidShow', this.handleKeyboardDidShow);
     this.keyboardDidHideSub = Keyboard.addListener('keyboardDidHide', this.handleKeyboardDidHide);
   }
 
   componentWillUnmount() {
+    // dynamic management view and keyboard unmounting
     this.keyboardDidShowSub.remove();
     this.keyboardDidHideSub.remove();
   }
 
+/* #############################################################################
+display & setstate of the selected image at the update of the global redux state
+##############################################################################*/
+  componentDidUpdate(previousProps) {
+    // 
+    const randomColor = color[Math.floor(Math.random() * color.length)];
+    if (previousProps.imageUri[0] !== this.props.imageUri[0]) {
+      this.setState({
+        image: this.props.imageUri[0],
+        color: randomColor,
+        displayImage: true,
+      })
+      }
+    }
 
-componentDidUpdate(previousProps, previousState) {
-  console.log(this.props.imageUri[0])
-  const randomColor = color[Math.floor(Math.random() * color.length)];
-  if (previousProps.imageUri[0] !== this.props.imageUri[0]) {
-    this.setState({
-      image: this.props.imageUri[0],
-      color: randomColor,
-      displayImage: true,
-    })
+
+/* #############################################################################
+permission management of the camera element and redirect to the camera component
+##############################################################################*/
+getPermissionAsyncCamera = async () => {
+  const { status } = await Permissions.askAsync(Permissions.CAMERA);
+  this.setState({ hasCameraPermission: status === 'granted' }, () => { this.props.navigation.navigate('Camera', {'navigation': 'NewKitties', 'methode': 'ADD_IMAGE'})});
 }
-}
+
+/* #############################################################################
+permission management of the pickler image element #############################
+##############################################################################*/
 getPermissionAsyncRoll = async () => {
   if (Constants.platform.ios) {
     const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
@@ -115,12 +108,10 @@ getPermissionAsyncRoll = async () => {
   this._pickImage()
 }
 
-getPermissionAsyncCamera = async () => {
-  const { status } = await Permissions.askAsync(Permissions.CAMERA);
-  this.setState({ hasCameraPermission: status === 'granted' }, () => { this.props.navigation.navigate('Camera', {'navigation': 'NewKitties', 'methode': 'ADD_IMAGE'})});
-}
 
-
+/* #############################################################################
+Search image function in the phone gallery #####################################
+##############################################################################*/
   _pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -137,6 +128,9 @@ getPermissionAsyncCamera = async () => {
     }
   };
 
+/* #############################################################################
+display separator between elements in the render ###############################
+##############################################################################*/
   FlatListItemSeparator = () => {
     return (
       <View
@@ -150,10 +144,18 @@ getPermissionAsyncCamera = async () => {
     );
   }
 
-  showActionSheet = () => this.actionSheet.show()
+/* #############################################################################
+display management of choice window <actionsheet> ##############################
+##############################################################################*/
 
+  showActionSheet = () => this.actionSheet.show()
   getActionSheetRef = ref => (this.actionSheet = ref)
 
+
+/* #############################################################################
+management of choices make by the user to redirect to camera or ################
+image selection in the gallery #################################################
+##############################################################################*/
   handlePress = (index) => {
     if(index == 1){
       this.getPermissionAsyncCamera()
@@ -170,6 +172,9 @@ getPermissionAsyncCamera = async () => {
     }
   }
 
+/* #############################################################################
+New image adding function conditioned by the presence or not of an image #######
+##############################################################################*/
   addNewImage() {
       if(this.state.displayImage === true){
         return(
@@ -195,7 +200,8 @@ getPermissionAsyncCamera = async () => {
 
 
 /* #############################################################################
-      Insert de l'user dans la base local et redirection vers la page Hobby
+Inserts the new cat into the local base for persistence and redirection ########
+to retrieve the full value of the database. ####################################
 ##############################################################################*/
 insertUser() {
     let query =
@@ -222,6 +228,11 @@ insertUser() {
     });
 }
 
+/* #############################################################################
+retrieve the entire database and redirect to the global redux state ############
+initialization function ########################################################
+##############################################################################*/
+
 recoverUser() {
   let query = "select * from cat";
   let params = [];
@@ -239,6 +250,9 @@ recoverUser() {
   });
 }
 
+/* #############################################################################
+initialization function of the global redux state ##############################
+##############################################################################*/
 _toggleFavorite(_array) {
   const action = { 
     type: "ADD_CAT", 
@@ -258,9 +272,9 @@ _toggleFavorite(_array) {
 
 
 
-
-
-  // Verification  champs sont bien remplis
+/* #############################################################################
+Check that all fields are filled in before you can register a new chat #########
+##############################################################################*/
   canBeSubmit() {
     const { biography, name, coat, breed } = this.state;
     return (
@@ -270,74 +284,75 @@ _toggleFavorite(_array) {
       breed.length > 0
     );
 }
-
+/*##############################################################################
+###################            DISPLAY              ############################
+###################            HTLM/JSX             ############################
+##############################################################################*/
   render() {
     const { shift } = this.state;
     const isEnabled = this.canBeSubmit()
 
     return (
       <KeyboardAwareScrollView
-      resetScrollToCoords={{ x: 0, y: 0 }}
-      style={{flex: 1}}
-      enableOnAndroid={true}
-      scrollEnabled={true}
-    >
-     <Animated.View style={[styles.container, { transform: [{translateY: shift}] }]}>
+        resetScrollToCoords={{ x: 0, y: 0 }}
+        style={{flex: 1}}
+        enableOnAndroid={true}
+        scrollEnabled={true}
+      >
 
-        {this.addNewImage()}
+        <Animated.View style={[styles.container, { transform: [{translateY: shift}] }]}>
+          {this.addNewImage()}
 
 
-      <View style={{flex: 1}}>
+          <View style={{flex: 1}}>
+              <Text style = {styles.text}>Biography</Text>
+              <TextInput 
+                style = {styles.input}
+                placeholder= {this.state.biographyPlaceHolder}
+                maxLength={200}
+                placeholderTextColor = {colorInput}
+                multiline={true}
+                autoCapitalize = "none"
+                onChangeText={(summary) => this.setState({biography: summary})}
+                value={this.state.biography}
+                />
+              {this.FlatListItemSeparator()}
 
-          <Text style = {styles.text}>Biography</Text>
-            <TextInput style = {styles.input}
-              placeholder= {this.state.biographyPlaceHolder}
-              maxLength={200}
-              placeholderTextColor = {colorInput}
-              multiline={true}
-              autoCapitalize = "none"
-              onChangeText={(summary) => this.setState({biography: summary})}
-              value={this.state.biography}
+              <Text style = {styles.text}>Name</Text>
+              <TextInput 
+                style = {styles.input}
+                underlineColorAndroid = "transparent"
+                placeholder= {this.state.namePlaceHolder}
+                placeholderTextColor = {colorInput}
+                autoCapitalize = "none"
+                onChangeText = {(text) => this.setState({name: text})}
+                value={this.state.name}
               />
-          {this.FlatListItemSeparator()}
+              {this.FlatListItemSeparator()}
 
-          <Text style = {styles.text}>Name</Text>
-                <TextInput style = {styles.input}
-                   underlineColorAndroid = "transparent"
-                   placeholder= {this.state.namePlaceHolder}
-                   placeholderTextColor = {colorInput}
-                   autoCapitalize = "none"
-                   onChangeText = {(text) => this.setState({name: text})}
-                   value={this.state.name}
-                   
-                   />
-         {this.FlatListItemSeparator()}
+              <Text style = {styles.text}>Breed</Text>
+              <TextInput style = {styles.input}
+                underlineColorAndroid = "transparent"
+                placeholder= {this.state.breedPlaceHolder}
+                placeholderTextColor = {colorInput}
+                autoCapitalize = "none"
+                onChangeText = {(text) => this.setState({breed: text})}
+                value={this.state.breed}
+              />
+              {this.FlatListItemSeparator()}
 
-         <Text style = {styles.text}>Breed</Text>
-                <TextInput style = {styles.input}
-                   underlineColorAndroid = "transparent"
-                   placeholder= {this.state.breedPlaceHolder}
-                   placeholderTextColor = {colorInput}
-                   autoCapitalize = "none"
-                   onChangeText = {(text) => this.setState({breed: text})}
-                   value={this.state.breed}
-                   />
-         {this.FlatListItemSeparator()}
-
-         <Text style = {styles.text}>Coat</Text>
-                <TextInput style = {styles.input}
-                   underlineColorAndroid = "transparent"
-                   placeholder= {this.state.coatPlaceHolder}
-                   placeholderTextColor = {colorInput}
-                   autoCapitalize = "none"
-                   onChangeText = {(text) => this.setState({coat: text})}
-                   value={this.state.coat}
-                   />
-         {this.FlatListItemSeparator()}
-
-
-      </View>
-      <View style={styles.footer}>
+              <Text style = {styles.text}>Coat</Text>
+              <TextInput style = {styles.input}
+                underlineColorAndroid = "transparent"
+                placeholder= {this.state.coatPlaceHolder}
+                placeholderTextColor = {colorInput}
+                autoCapitalize = "none"
+                onChangeText = {(text) => this.setState({coat: text})}
+                value={this.state.coat}
+              />
+              {this.FlatListItemSeparator()}
+          </View>
+          <View style={styles.footer}>
             <Button
               disabled={!isEnabled}
               title="Create new cat"
@@ -345,20 +360,25 @@ _toggleFavorite(_array) {
               onPress={() => {this.insertUser()}}
             />
           </View>
-        
-        <ActionSheet
-          ref={this.getActionSheetRef}
-          title={title}
-          message="Creating a new cat requires passion. How do you want to proceed?"
-          options={options}
-          cancelButtonIndex={CANCEL_INDEX}
-          destructiveButtonIndex={DESTRUCTIVE_INDEX}
-          onPress={(index) => this.handlePress(index)}
-        />
-        </Animated.View>
-        </KeyboardAwareScrollView>
+            
+          <ActionSheet
+            ref={this.getActionSheetRef}
+            title={title}
+            message="Creating a new cat requires passion. How do you want to proceed?"
+            options={options}
+            cancelButtonIndex={CANCEL_INDEX}
+            destructiveButtonIndex={DESTRUCTIVE_INDEX}
+            onPress={(index) => this.handlePress(index)}
+          />
+          </Animated.View>
+      </KeyboardAwareScrollView>
     );
   }
+
+/* #############################################################################
+Keyboard display managementworks with </Animated.View> to leave space above the 
+keyboard and see the field ####################################################
+##############################################################################*/
   handleKeyboardDidShow = (event) => {
     const { height: windowHeight } = Dimensions.get('window');
     const keyboardHeight = event.endCoordinates.height;
@@ -393,10 +413,11 @@ _toggleFavorite(_array) {
   }
 }
 
-// disabled={!isEnabled}
-
+/* #############################################################################
+#####################    StyleSheet    #########################################
+##############################################################################*/
 const styles = StyleSheet.create({
-    box_icone: {
+  box_icone: {
     flex:1/2,
     margin: 6,
     backgroundColor: '#E2E0E2',
@@ -447,6 +468,9 @@ const styles = StyleSheet.create({
 
 
 
+/* #############################################################################
+Connect to redux ###############################################################
+##############################################################################*/
 
 const mapStateToProps = (state) => {
   return {

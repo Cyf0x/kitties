@@ -14,8 +14,9 @@ export default class App extends Component {
 
   };
 
-
-
+/* #############################################################################
+creation of the cat data-base for presitence implementation ####################
+##############################################################################*/
   componentDidMount() {
       db.transaction(tx => {
         tx.executeSql(
@@ -26,7 +27,6 @@ export default class App extends Component {
 
 
   render() {
-
     return (
       <Provider store={Store}>
         <Navigation  />
@@ -36,6 +36,9 @@ export default class App extends Component {
 
 }
 
+/* #############################################################################
+#####################    StyleSheet    #########################################
+##############################################################################*/
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { connect } from 'react-redux'
 import * as SQLite from "expo-sqlite";
 
+//Intialization of the database
 const db = SQLite.openDatabase("db.db");
 
 const appliColor = "#F7931A"
@@ -24,6 +25,11 @@ class FindNewKitties extends React.Component {
     this.requestApi()
   }
 
+/* #############################################################################
+Requets of the cryptokitties API to find new kitties to adopt. Part that needs #
+to be checked regularly because it is sensitive in case of a change of  ########
+external rules #################################################################
+##############################################################################*/
   requestApi() {
     let url = `https://public.api.cryptokitties.co/v1/kitties?kittyId=2290-2312`
     let token = '9VN5Q1dK44pAAraqJJDTWabt6eaAsJm5a1JyeWnVCKQ'
@@ -39,6 +45,10 @@ class FindNewKitties extends React.Component {
     });
   }
 
+/* #############################################################################
+Parsing of the element returned by the api to adapt it to the format requested #
+by the <Flatlist> object #######################################################
+##############################################################################*/
   parsObject() {
     let dict = []
     for (const element of this.state.data) {
@@ -59,10 +69,11 @@ class FindNewKitties extends React.Component {
 
 
 /* #############################################################################
-Viewing cats in the application from the state
+Display different cat from the object initialized in the state by the ##########
+parsobject() function ##########################################################
 ##############################################################################*/
   flatlistCrypto = () => {
-
+//display of chat if api returns object otherwise display of circular progress
     if (this.state.isLoading === true) {
     return (
       <View>
@@ -102,6 +113,9 @@ Viewing cats in the application from the state
   )
   };
 
+/* #############################################################################
+Alert is triggered when the user wants to adopt a new cat ######################
+##############################################################################*/ 
 alert(item){
   console.log(item)
     return(
@@ -115,7 +129,7 @@ alert(item){
             onPress: () => console.log('Cancel Pressed'),
             style: 'cancel',
           },
-          {text: 'OK', onPress: () => {this.insertUser(item)}},
+          {text: 'OK', onPress: () => {this.insertNewCat(item)}},
         ],
         {cancelable: false},
       )
@@ -125,9 +139,10 @@ alert(item){
 
 
 /* #############################################################################
-      Insert de l'user dans la base local et redirection vers la page Hobby
+Inserts the new cat into the local base for persistence and redirection ########
+to retrieve the full value of the database. ####################################
 ##############################################################################*/
-insertUser(item) {
+insertNewCat(item) {
   let query =
     "INSERT INTO cat (cat_biography, cat_name, cat_breed, cat_coat, cat_image)VALUES(?,?,?,?,?)";
   let params = [
@@ -152,6 +167,10 @@ insertUser(item) {
   });
 }
 
+/* #############################################################################
+retrieve the entire database and redirect to the global redux state ############
+initialization function ########################################################
+##############################################################################*/
 recoverUser() {
 let query = "select * from cat";
 let params = [];
@@ -160,7 +179,7 @@ db.transaction(tx => {
     query,
     params,
     (_, { rows: { _array } }) => {
-      this._toggleFavorite(_array)
+      this.addCatToRedux(_array)
     },
     function(tx, err) {
       console.log("Erreur" + err);
@@ -169,7 +188,10 @@ db.transaction(tx => {
 });
 }
 
-_toggleFavorite(_array) {
+/* #############################################################################
+initialization function of the global redux state ##############################
+##############################################################################*/
+addCatToRedux(_array) {
 console.log('#######################################',_array)
 const action = { 
   type: "ADD_CAT", 
@@ -183,7 +205,7 @@ this.props.dispatch(action)
 ################# modal management function  ###################################
 ##############################################################################*/
 
-  // Récupération user.id dans le fichier de function et affichage modal profil
+// modal mounting with parameter passing
   modalKittiesInfos = (item) => {
     this.setState({
       modalState: item,
@@ -191,21 +213,25 @@ this.props.dispatch(action)
     });
   }
 
-// Retrieving user.id from the function file and displaying modal profile
+// modal unmounting with parameter passing
   unmountKittiesModal = () => {
     this.setState({
-      user_interests: [],
       defaultKittiesModal: false
     })
   }
 
-    render() {
-        return (
-            <View style={{flex:1}}>
-              {this.flatlistCrypto()}
+/*##############################################################################
+###################            DISPLAY              ############################
+###################            HTLM/JSX             ############################
+##############################################################################*/
+
+  render() {
+      return (
+        <View style={{flex:1}}>
+          {this.flatlistCrypto()}
 
 
-            <View style={{ flex: 1 }}>
+          <View style={{ flex: 1 }}>
             <Modal
               height={0.8}
               width={0.95}
@@ -213,7 +239,7 @@ this.props.dispatch(action)
               rounded
               actionsBordered
               onTouchOutside={() => {
-                this.unmountKittiesModal();
+              this.unmountKittiesModal();
               }}
 
               footer={
@@ -231,26 +257,19 @@ this.props.dispatch(action)
                 </ModalFooter>
               }
             >
-              <ModalContent
-                style={{ flex: 1, backgroundColor: '#fff' }}
-              >
-              <KittiesModal 
-                content={[
-                  this.state.modalState,
-                  ]} />
-
+              <ModalContent style={{ flex: 1, backgroundColor: '#fff' }}>
+                <KittiesModal content={[ this.state.modalState ]} />
               </ModalContent>
             </Modal>
-            </View>
-
-            </View>
-
-
-
-            
-        )
-    }
+          </View>
+        </View>
+    )
+  }
 }
+
+/* #############################################################################
+#####################    StyleSheet    #########################################
+##############################################################################*/
 const styles = StyleSheet.create({
   box_icone: {
     flex:1/2,
@@ -286,7 +305,9 @@ const styles = StyleSheet.create({
   }
 })
 
-
+/* #############################################################################
+Connect to redux ###############################################################
+##############################################################################*/
 const mapStateToProps = (state) => {
   return {
     imageUri: state.imageUri,

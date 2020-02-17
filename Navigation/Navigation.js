@@ -3,8 +3,7 @@ import { StyleSheet, View, Image, Text, TouchableOpacity, ImageBackground} from 
 import { createStackNavigator } from 'react-navigation-stack';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { createDrawerNavigator, DrawerNavigatorItems, DrawerView } from 'react-navigation-drawer';
-import { MaterialIcons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
-
+import { MaterialIcons } from '@expo/vector-icons';
 import KittiesList from 'kitties/Components/KittiesList';
 import Editkitties from 'kitties/Components/Editkitties';
 import NewKitties from 'kitties/Components/NewKitties';
@@ -12,7 +11,7 @@ import FindNewKitties from 'kitties/Components/FindNewKitties'
 import Camera from 'kitties/Components/Camera'
 
 
-const backgroundColor = "#FFB6E2"
+const backgroundColor = "#F4A3D4"
 
 class NavigationDrawerStructure extends Component {
 
@@ -37,50 +36,51 @@ class NavigationDrawerStructure extends Component {
 }
 
 
-// Page d'acceuil de l'application avant connexion
+/*##############################################################################
+###################         STACKNAVIGATOR          ############################
+###################                                 ############################
+##############################################################################*/
 const KittiesList_StackNavigator = createStackNavigator({
-
-    KittiesList: {
+  KittiesList: {
     screen: KittiesList,
     navigationOptions: ({ navigation }) => ({
-        title: 'KittiesList',
-        headerLeft: () => <NavigationDrawerStructure navigationProps={navigation} />,
-        headerStyle: {
-          backgroundColor: backgroundColor,
-        },
-        headerTintColor: 'white',
-      }),
-    },
-    Editkitties: {
-      screen: Editkitties,
-      navigationOptions: {
-        title: 'edit cat mode',
-        headerStyle: {
-          backgroundColor: "white",
-          elevation: 0,
-          shadowOpacity: 0,
-          borderBottomWidth: 0,
-        },
-        headerTintColor: 'black',
-      }
-    },
-    Camera: {
-      screen: Camera,
-      navigationOptions: {
-        title: 'Take a picture',
-        headerStyle: {
-          backgroundColor: "white",
-          elevation: 0,
-          shadowOpacity: 0,
-          borderBottomWidth: 0,
-        },
-        headerTintColor: 'black',
-      }
-    },
+      title: 'KittiesList',
+      headerLeft: () => <NavigationDrawerStructure navigationProps={navigation} />,
+      headerStyle: {
+        backgroundColor: backgroundColor,
+      },
+      headerTintColor: 'white',
+    }),
+  },
+  Editkitties: {
+    screen: Editkitties,
+    navigationOptions: {
+      title: 'edit cat mode',
+      headerStyle: {
+        backgroundColor: "white",
+        elevation: 0,
+        shadowOpacity: 0,
+        borderBottomWidth: 0,
+      },
+      headerTintColor: 'black',
+    }
+  },
+  Camera: {
+    screen: Camera,
+    navigationOptions: {
+      title: 'Take a picture',
+      headerStyle: {
+        backgroundColor: "white",
+        elevation: 0,
+        shadowOpacity: 0,
+        borderBottomWidth: 0,
+      },
+      headerTintColor: 'black',
+    }
+  },
 })
 
 const NewKitties_StackNavigator = createStackNavigator({
-
   NewKitties: {
     screen: NewKitties,
     navigationOptions: ({ navigation }) => ({
@@ -105,7 +105,6 @@ const NewKitties_StackNavigator = createStackNavigator({
       headerTintColor: 'black',
     }
   },
-
 })
 
 const FindNewKitties_StackNavigator = createStackNavigator({
@@ -122,8 +121,12 @@ const FindNewKitties_StackNavigator = createStackNavigator({
     },
   })
 
-const DrawerNavigatorExample = createDrawerNavigator({
 
+/*##############################################################################
+###################         DRAWERNAVIGATOR          ###########################
+###################                                 ############################
+##############################################################################*/  
+const DrawerNavigatorExample = createDrawerNavigator({
   Screen1: {
     screen: KittiesList_StackNavigator,
     navigationOptions: {
@@ -152,46 +155,44 @@ const DrawerNavigatorExample = createDrawerNavigator({
     },
   },
 },
-
   {
-  initialRouteName: 'Screen1',
-  contentComponent: props => <DrawerContent {...props} />,
-  drawerOpenRoute: 'DrawerOpen',
-  drawerCloseRoute: 'DrawerClose',
-  drawerToggleRoute: 'DrawerToggle',
-}
+    initialRouteName: 'Screen1',
+    contentComponent: props => <DrawerContent {...props} />,
+    drawerOpenRoute: 'DrawerOpen',
+    drawerCloseRoute: 'DrawerClose',
+    drawerToggleRoute: 'DrawerToggle',
+  }
 );
 
+/* #############################################################################
+Style of the drawernavigatore header ###########################################
+##############################################################################*/ 
 const DrawerContent = (props) => (
   <View>
-
     <View
       style={{
         backgroundColor: backgroundColor,
         height: 160,
         alignItems: 'center',
-
-      }}>
-        
-
-    <ImageBackground source={require('kitties/Images/banner.png')} style={{position: 'absolute', bottom:0, width: 280, height: 100, bottom: 0, }} >
-     
-      </ImageBackground>
+      }}>     
+      <ImageBackground source={require('kitties/Images/banner.png')} style={{position: 'absolute', bottom:0, width: 280, height: 100, bottom: 0, }}></ImageBackground>
       <Text style={{
-    position: "absolute",
-    textAlign: "center",
-    fontWeight: "bold",
-    marginTop:27,
-    fontSize: 35,
-    color: "white"
-    }}>Kitties Portfolio</Text>
+        position: "absolute",
+        textAlign: "center",
+        fontWeight: "bold",
+        marginTop:27,
+        fontSize: 35,
+        color: "white"}}>
+          Kitties Portfolio
+      </Text>
     </View>
-
     <DrawerNavigatorItems {...props} />
   </View>
 )
 
-
+/* #############################################################################
+#####################    StyleSheet    #########################################
+##############################################################################*/
 const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
@@ -227,6 +228,10 @@ const styles = StyleSheet.create({
     }
 });
 
+/*##############################################################################
+###################   SWITCHNAVIGATOR && Routing    ############################
+###################                                 ############################
+##############################################################################*/  
 export default createAppContainer(
     createSwitchNavigator(
       {

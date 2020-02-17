@@ -1,28 +1,11 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, Image, ImageBackground, FlatList, TouchableOpacity} from 'react-native';
 import * as SQLite from "expo-sqlite";
+import { color } from 'kitties/Functions/function'
 
 
 const db = SQLite.openDatabase("db.db");
 const colorInput = "#35819a";
-
-const color = [
-  '#ED8970',
-  '#EDB970',
-  '#EDEA70',
-  '#A2ED70',
-  '#73ED70',
-  '#70EDA1',
-  '#70EDE0',
-  '#70BFED',
-  '#70A5ED',
-  '#707BED',
-  '#9D70ED',
-  '#DB70ED',
-  '#ED70E1',
-  '#ED70AB',
-  '#ED708C',
-]
 
 export default class KittiesModal extends Component {
 
@@ -51,28 +34,6 @@ export default class KittiesModal extends Component {
     );
   }
 
-  /* #############################################################################
-Affichage de la liste de tag dans l'application à partir du state initialisé
-dans la fonction precedente
-##############################################################################*/
-flatlistCrypto = (user_interests, isLoading) => {
-  if (isLoading === true) {
-  return (
-    <View>
-    </View>
-  );
-  } else {
-    return(
-        <View>
-        <ActivityIndicator
-          color="#009688"
-          size="large"
-          style={styles.ActivityIndicatorStyle}
-        />
-    </View>
-    )
-  } 
-}
 
 /*##############################################################################
 ###################            AFFICHAGE            ############################
@@ -119,7 +80,7 @@ flatlistCrypto = (user_interests, isLoading) => {
 }
 
 /* #############################################################################
-#####################    Feuille de style    ################################### 
+#####################    StyleSheet    #########################################
 ##############################################################################*/
 
 const styles = StyleSheet.create({

@@ -9,12 +9,17 @@ import { Button } from "react-native-elements";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { connect } from 'react-redux'
 import * as SQLite from "expo-sqlite";
+import { catPicture, color, colorInput} from 'kitties/Functions/function'
 
-
+//Intialization of the database
 const db = SQLite.openDatabase("db.db");
+
+// Constant of dynamic management of the view/keyboard display
 const { State: TextInputState } = TextInput;
 const CANCEL_INDEX = 0
 const DESTRUCTIVE_INDEX = 4
+
+// Constant initialization of the actionsheet element
 const options = [
   'Cancel',
   {
@@ -31,39 +36,7 @@ const options = [
   },
 ]
 const title = <Text style={{ color: 'crimson', fontSize: 18 }}>Which one do you like?</Text>
-const catPicture = [
-'https://img.cryptokitties.co/0x06012c8cf97bead5deae237070f9587f8e7a266d/1137652.png',
-'https://img.cryptokitties.co/0x06012c8cf97bead5deae237070f9587f8e7a266d/1137662.png',
-'https://img.cryptokitties.co/0x06012c8cf97bead5deae237070f9587f8e7a266d/1137672.png',
-'https://img.cryptokitties.co/0x06012c8cf97bead5deae237070f9587f8e7a266d/1835993.png',
-'https://img.cryptokitties.co/0x06012c8cf97bead5deae237070f9587f8e7a266d/1836001.png',
-'https://img.cryptokitties.co/0x06012c8cf97bead5deae237070f9587f8e7a266d/1825688.png',
-'https://img.cryptokitties.co/0x06012c8cf97bead5deae237070f9587f8e7a266d/221.png',
-'https://img.cryptokitties.co/0x06012c8cf97bead5deae237070f9587f8e7a266d/1825314.png',
-'https://img.cryptokitties.co/0x06012c8cf97bead5deae237070f9587f8e7a266d/1338265.png',
-'https://img.cryptokitties.co/0x06012c8cf97bead5deae237070f9587f8e7a266d/1143336.png',
-'https://img.cryptokitties.co/0x06012c8cf97bead5deae237070f9587f8e7a266d/1180980.png',
-]
 
-const color = [
-  '#ED8970',
-  '#EDB970',
-  '#EDEA70',
-  '#A2ED70',
-  '#73ED70',
-  '#70EDA1',
-  '#70EDE0',
-  '#70BFED',
-  '#70A5ED',
-  '#707BED',
-  '#9D70ED',
-  '#DB70ED',
-  '#ED70E1',
-  '#ED70AB',
-  '#ED708C',
-]
-
-const colorInput = "#ED70AB"
 
 class EditKitties extends React.Component {
   state = {
@@ -79,8 +52,10 @@ class EditKitties extends React.Component {
   }
 
   componentDidMount() {
+    // Dynamic management view and keyboard moounting
     this.keyboardDidShowSub = Keyboard.addListener('keyboardDidShow', this.handleKeyboardDidShow);
     this.keyboardDidHideSub = Keyboard.addListener('keyboardDidHide', this.handleKeyboardDidHide);
+    // Props management through the kittiesList component to allow cat editing
     const propsInfoCat =   this.props.navigation.getParam('info')
     const randomColor = color[Math.floor(Math.random() * color.length)];
     this.setState({
@@ -100,35 +75,46 @@ class EditKitties extends React.Component {
     this.keyboardDidHideSub.remove();
   }
 
-
-componentDidUpdate(previousProps, previousState) {
-  const randomColor = color[Math.floor(Math.random() * color.length)];
-  if (previousProps.editImage[0] !== this.props.editImage[0]) {
-    this.setState({
-      image: this.props.editImage[0],
-      color: randomColor,
-      displayImage: true,
-    })
-}
-}
-
-getPermissionAsyncRoll = async () => {
-  if (Constants.platform.ios) {
-    const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-    if (status !== 'granted') {
-      alert('Sorry, we need camera roll permissions to make this work!');
-    } else {
-      this._pickImage()
-    }
+/* #############################################################################
+Display & setstate of the selected image at the update of the global redux state
+##############################################################################*/
+  componentDidUpdate(previousProps) {
+    const randomColor = color[Math.floor(Math.random() * color.length)];
+    if (previousProps.editImage[0] !== this.props.editImage[0]) {
+      this.setState({
+        image: this.props.editImage[0],
+        color: randomColor,
+        displayImage: true,
+      })
   }
-  this._pickImage()
-}
+  }
 
-getPermissionAsyncCamera = async () => {
-  const { status } = await Permissions.askAsync(Permissions.CAMERA);
-  this.setState({ hasCameraPermission: status === 'granted' }, () => { this.props.navigation.navigate('Camera', {'navigation': 'Editkitties', 'methode': 'EDIT_IMAGE'})});
-}
+/* #############################################################################
+Permission management of the camera element and redirect to the camera component
+##############################################################################*/
+  getPermissionAsyncCamera = async () => {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA);
+    this.setState({ hasCameraPermission: status === 'granted' }, () => { this.props.navigation.navigate('Camera', {'navigation': 'Editkitties', 'methode': 'EDIT_IMAGE'})});
+  }
 
+/* #############################################################################
+Permission management of the pickler image element #############################
+##############################################################################*/
+  getPermissionAsyncRoll = async () => {
+    if (Constants.platform.ios) {
+      const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+      if (status !== 'granted') {
+        alert('Sorry, we need camera roll permissions to make this work!');
+      } else {
+        this._pickImage()
+      }
+    }
+    this._pickImage()
+  }
+
+/* #############################################################################
+Search image function in the phone gallery #####################################
+##############################################################################*/
   _pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -145,6 +131,9 @@ getPermissionAsyncCamera = async () => {
     }
   };
 
+/* #############################################################################
+display separator between elements in the render ###############################
+##############################################################################*/
   FlatListItemSeparator = () => {
     return (
       <View
@@ -158,10 +147,16 @@ getPermissionAsyncCamera = async () => {
     );
   }
 
+/* #############################################################################
+display management of choice window <actionsheet> ##############################
+##############################################################################*/
   showActionSheet = () => this.actionSheet.show()
-
   getActionSheetRef = ref => (this.actionSheet = ref)
 
+/* #############################################################################
+management of choices make by the user to redirect to camera or ################
+image selection in the gallery #################################################
+##############################################################################*/
   handlePress = (index) => {
     if(index == 1){
       this.getPermissionAsyncCamera();
@@ -179,6 +174,9 @@ getPermissionAsyncCamera = async () => {
 
   }
 
+/* #############################################################################
+New image adding function conditioned by the presence or not of an image #######
+##############################################################################*/
   addNewImage() {
       if(this.state.displayImage === true){
         return(
@@ -204,7 +202,7 @@ getPermissionAsyncCamera = async () => {
 
 
 /* #############################################################################
-      Insert de l'user dans la base local et redirection vers la page Hobby
+Update cat value into the local data-base for persistence ######################
 ##############################################################################*/
 updateUser() {
     let query = "UPDATE cat set cat_biography=?, cat_name=? , cat_breed=?, cat_coat=?, cat_image=? where cat_id=?";
@@ -223,7 +221,7 @@ updateUser() {
         params,
         (tx, results) => {
           console.log("Success", results);
-          this.recoverUser()
+          this.recoverCat()
         },
         function(tx, err) {
           console.log("Erreur" + err);
@@ -232,8 +230,11 @@ updateUser() {
     });
 }
 
-recoverUser() {
-
+/* #############################################################################
+retrieve the entire database and redirect to the global redux state ############
+initialization function ########################################################
+##############################################################################*/
+recoverCat() {
   let query = "select * from cat";
   let params = [];
   db.transaction(tx => {
@@ -242,7 +243,7 @@ recoverUser() {
       params,
       (_, { rows: { _array } }) => {
         console.log(_array)
-        this._toggleFavorite(_array)
+        this.addCatToRedux(_array)
       },
       function(tx, err) {
         console.log("Erreur" + err);
@@ -251,7 +252,10 @@ recoverUser() {
   });
 }
 
-_toggleFavorite(_array) {
+/* #############################################################################
+initialization function of the global redux state ##############################
+##############################################################################*/
+addCatToRedux(_array) {
   const actionAddCat = { 
     type: "ADD_CAT", 
       value: _array
@@ -264,8 +268,9 @@ _toggleFavorite(_array) {
 
 
 
-
-  // Verification  champs sont bien remplis
+/* #############################################################################
+Check that all fields are filled in before you can register a new chat #########
+##############################################################################*/
   canBeSubmit() {
     const { biography, name, coat, breed } = this.state;
     return (
@@ -276,6 +281,10 @@ _toggleFavorite(_array) {
     );
 }
 
+/*##############################################################################
+###################            DISPLAY              ############################
+###################            HTLM/JSX             ############################
+##############################################################################*/
   render() {
     const { shift } = this.state;
     const isEnabled = this.canBeSubmit()
@@ -286,83 +295,81 @@ _toggleFavorite(_array) {
       style={{flex: 1}}
       enableOnAndroid={true}
       scrollEnabled={true}
-    >
-     <Animated.View style={[styles.container, { transform: [{translateY: shift}] }]}>
+     >
+      <Animated.View style={[styles.container, { transform: [{translateY: shift}] }]}>
+      {this.addNewImage()}
 
-        {this.addNewImage()}
-
-
-      <View style={{flex: 1}}>
-
-          <Text style = {styles.text}>Biography</Text>
-            <TextInput style = {styles.input}
-              placeholder= {this.state.biographyPlaceHolder}
-              maxLength={200}
-              placeholderTextColor = {colorInput}
-              multiline={true}
-              autoCapitalize = "none"
-              onChangeText={(summary) => this.setState({biography: summary})}
-              value={this.state.biography}
+        <View style={{flex: 1}}>
+            <Text style = {styles.text}>Biography</Text>
+              <TextInput style = {styles.input}
+                placeholder= {this.state.biographyPlaceHolder}
+                maxLength={200}
+                placeholderTextColor = {colorInput}
+                multiline={true}
+                autoCapitalize = "none"
+                onChangeText={(summary) => this.setState({biography: summary})}
+                value={this.state.biography}
               />
-          {this.FlatListItemSeparator()}
+              {this.FlatListItemSeparator()}
 
-          <Text style = {styles.text}>Name</Text>
+              <Text style = {styles.text}>Name</Text>
                 <TextInput style = {styles.input}
-                   underlineColorAndroid = "transparent"
-                   placeholder= {this.state.namePlaceHolder}
-                   placeholderTextColor = {colorInput}
-                   autoCapitalize = "none"
-                   onChangeText = {(text) => this.setState({name: text})}
-                   value={this.state.name}
-                   
-                   />
-         {this.FlatListItemSeparator()}
+                  underlineColorAndroid = "transparent"
+                  placeholder= {this.state.namePlaceHolder}
+                  placeholderTextColor = {colorInput}
+                  autoCapitalize = "none"
+                  onChangeText = {(text) => this.setState({name: text})}
+                  value={this.state.name}   
+                />
+              {this.FlatListItemSeparator()}
 
-         <Text style = {styles.text}>Breed</Text>
+              <Text style = {styles.text}>Breed</Text>
+                  <TextInput style = {styles.input}
+                    underlineColorAndroid = "transparent"
+                    placeholder= {this.state.breedPlaceHolder}
+                    placeholderTextColor = {colorInput}
+                    autoCapitalize = "none"
+                    onChangeText = {(text) => this.setState({breed: text})}
+                    value={this.state.breed}
+                  />
+              {this.FlatListItemSeparator()}
+
+              <Text style = {styles.text}>Coat</Text>
                 <TextInput style = {styles.input}
-                   underlineColorAndroid = "transparent"
-                   placeholder= {this.state.breedPlaceHolder}
-                   placeholderTextColor = {colorInput}
-                   autoCapitalize = "none"
-                   onChangeText = {(text) => this.setState({breed: text})}
-                   value={this.state.breed}
-                   />
-         {this.FlatListItemSeparator()}
-
-         <Text style = {styles.text}>Coat</Text>
-                <TextInput style = {styles.input}
-                   underlineColorAndroid = "transparent"
-                   placeholder= {this.state.coatPlaceHolder}
-                   placeholderTextColor = {colorInput}
-                   autoCapitalize = "none"
-                   onChangeText = {(text) => this.setState({coat: text})}
-                   value={this.state.coat}
-                   />
-         {this.FlatListItemSeparator()}
-
-
-      </View>
-      <View style={styles.footer}>
-            <Button
-              title="edit cat"
-              buttonStyle={styles.button}
-              onPress={() => {this.updateUser()}}
-            />
-          </View>
-        
-        <ActionSheet
-          ref={this.getActionSheetRef}
-          title={title}
-          message="Creating a new cat requires passion. How do you want to proceed?"
-          options={options}
-          cancelButtonIndex={CANCEL_INDEX}
-          destructiveButtonIndex={DESTRUCTIVE_INDEX}
-          onPress={(index) => this.handlePress(index)}
-        />
+                  underlineColorAndroid = "transparent"
+                  placeholder= {this.state.coatPlaceHolder}
+                  placeholderTextColor = {colorInput}
+                  autoCapitalize = "none"
+                  onChangeText = {(text) => this.setState({coat: text})}
+                  value={this.state.coat}
+                />
+              {this.FlatListItemSeparator()}
+        </View>
+        <View style={styles.footer}>
+          <Button
+            title="edit cat"
+            buttonStyle={styles.button}
+            onPress={() => {this.updateUser()}}
+          />
+        </View>
+          
+          <ActionSheet
+            ref={this.getActionSheetRef}
+            title={title}
+            message="Creating a new cat requires passion. How do you want to proceed?"
+            options={options}
+            cancelButtonIndex={CANCEL_INDEX}
+            destructiveButtonIndex={DESTRUCTIVE_INDEX}
+            onPress={(index) => this.handlePress(index)}
+          />
         </Animated.View>
-        </KeyboardAwareScrollView>
+      </KeyboardAwareScrollView>
     );
   }
+/* #############################################################################
+Keyboard display managementworks with </Animated.View> to leave space above the 
+keyboard and see the field ####################################################
+##############################################################################*/
   handleKeyboardDidShow = (event) => {
     const { height: windowHeight } = Dimensions.get('window');
     const keyboardHeight = event.endCoordinates.height;
@@ -397,8 +404,9 @@ _toggleFavorite(_array) {
   }
 }
 
-// disabled={!isEnabled}
-
+/* #############################################################################
+#####################    StyleSheet    #########################################
+##############################################################################*/
 const styles = StyleSheet.create({
     box_icone: {
     flex:1/2,
@@ -449,9 +457,9 @@ const styles = StyleSheet.create({
   },
 })
 
-
-
-
+/* #############################################################################
+Connect to redux ###############################################################
+##############################################################################*/
 const mapStateToProps = (state) => {
   return {
     editImage: state.editImage,

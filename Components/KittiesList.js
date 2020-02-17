@@ -4,14 +4,19 @@ import { connect } from 'react-redux'
 import * as SQLite from "expo-sqlite";
 import { Ionicons } from '@expo/vector-icons';
 import { ActionSheetCustom as ActionSheet } from 'react-native-custom-actionsheet'
-import Modal, { ModalContent, ModalTitle, ModalFooter, ModalButton, } from 'react-native-modals';
+import Modal, { ModalContent, ModalFooter, ModalButton, } from 'react-native-modals';
 import KittiesModal from 'kitties/Components/Modal/kittiesModal.js'
 
+//Intialization of the database
 const db = SQLite.openDatabase("db.db");
 
 const appliColor = "#F7931A"
+
+// Constant of dynamic management of the view/keyboard display
 const CANCEL_INDEX = 0
 const DESTRUCTIVE_INDEX = 4
+
+// Constant initialization of the actionsheet element
 const options = [
   'Cancel',
   {
@@ -33,7 +38,16 @@ class KittiesList extends React.Component {
     defaultKittiesModal: false,
   };
 
+/* #############################################################################
+Recuperation of the local base when the component is mounted to initialize redux 
+and the display of the different recorded chats ###############################
+##############################################################################*/
   componentDidMount() {
+    db.transaction(tx => {
+      tx.executeSql(
+        "create table if not exists cat (cat_id integer primary key not null, cat_biography text,cat_name text,cat_breed text,cat_coat text, cat_image text);"
+      );
+    });
     let query = "select * from cat";
     let params = [];
     db.transaction(tx => {
@@ -41,7 +55,7 @@ class KittiesList extends React.Component {
         query,
         params,
         (_, { rows: { _array } }) => {
-          this._toggleFavorite(_array)
+          this.addCatToRedux(_array)
         },
         function(tx, err) {
           console.log("Erreur" + err);
@@ -50,6 +64,9 @@ class KittiesList extends React.Component {
     });
   }
 
+/* #############################################################################
+display management of choice window <actionsheet> ##############################
+##############################################################################*/
 showActionSheet = (item) => {
   this.setState({item: item})
   this.actionSheet.show(item)
@@ -57,23 +74,22 @@ showActionSheet = (item) => {
 
 getActionSheetRef = ref => (this.actionSheet = ref)
 
+
+/* #############################################################################
+management of choices make by the user to redirect to edit or delete a cat from
+user portfolio #################################################################
+##############################################################################*/
 handlePress = (index) => {
   if(index == 1){
-    console.log(this.state.item)
-    console.log(index)
     this.props.navigation.navigate('Editkitties', {'info': this.state.item})
-
   } else if(index == 2){
-    console.log(this.state.item)
-    console.log(index)
     this.deleteCat(this.state.item)
-
   }
 }
 
 
 /* #############################################################################
-      Insert de l'user dans la base local et redirection vers la page Hobby
+delete cat value into the local data-base  #####################################
 ##############################################################################*/
 deleteCat(item) {
   let query = "DELETE FROM cat where cat_id=?";
@@ -87,7 +103,7 @@ deleteCat(item) {
       params,
       (tx, results) => {
         console.log("Success", results);
-        this.recoverUser()
+        this.recoverCat()
       },
       function(tx, err) {
         console.log("Erreur" + err);
@@ -96,7 +112,11 @@ deleteCat(item) {
   });
 }
 
-recoverUser() {
+/* #############################################################################
+retrieve the entire database and redirect to the global redux state ############
+initialization function ########################################################
+##############################################################################*/
+recoverCat() {
 let query = "select * from cat";
 let params = [];
 db.transaction(tx => {
@@ -105,7 +125,7 @@ db.transaction(tx => {
     params,
     (_, { rows: { _array } }) => {
       console.log(_array)
-      this._toggleFavorite(_array)
+      this.addCatToRedux(_array)
     },
     function(tx, err) {
       console.log("Erreur" + err);
@@ -113,27 +133,23 @@ db.transaction(tx => {
   );
 });
 }
-
-_toggleFavorite(_array) {
-const action = { 
-  type: "ADD_CAT", 
-    value: _array
-  }
-this.props.dispatch(action)
-// this.setState({
-//   image: "",
-//   biography: "",
-//   name: "",
-//   breed: "",
-//   coat: "",
-//   displayImage: false
-// }, () => { })
-
+/* #############################################################################
+initialization function of the global redux state ##############################
+##############################################################################*/
+addCatToRedux(_array) {
+  const action = { 
+    type: "ADD_CAT", 
+      value: _array
+    }
+  this.props.dispatch(action)
 } 
 
 
+/* #############################################################################
+################# modal management function  ###################################
+##############################################################################*/
 
-  // Récupération user.id dans le fichier de function et affichage modal profil
+// modal mounting with parameter passing
   modalKittiesInfos = (item) => {
     this.setState({
       modalState: item,
@@ -141,7 +157,7 @@ this.props.dispatch(action)
     });
   }
 
-// Retrieving user.id from the function file and displaying modal profile
+// modal unmounting with parameter passing
   unmountKittiesModal = () => {
     this.setState({
       user_interests: [],
@@ -149,20 +165,12 @@ this.props.dispatch(action)
     })
   }
 
-  _toggleFavorite(_array) {
-    const action = { 
-      type: "ADD_CAT", 
-        value: _array
-      }
-    this.props.dispatch(action)
-  }
 
- 
-  /* #############################################################################
-Viewing cats in the application from the state
+/* #############################################################################
+Display different cat from the object initialized in the state by redux state ##
+value  #########################################################################
 ##############################################################################*/
 flatlistCat = () => {
-
     const reduxSaveCat = this.props.myCats[0]
     return (
       <View>
@@ -189,62 +197,62 @@ renderItem(item) {
     </TouchableOpacity>
   )
 };
-  
-    render() {
-        return (
-            <View>
-                {this.flatlistCat()}
-                <ActionSheet
-                  ref={this.getActionSheetRef}
-                  title={title}
-                  options={options}
-                  cancelButtonIndex={CANCEL_INDEX}
-                  destructiveButtonIndex={DESTRUCTIVE_INDEX}
-                  onPress={(index) => {this.handlePress(index)}}
-                />
-            <View style={{ flex: 1 }}>
-            <Modal
-              height={0.8}
-              width={0.95}
-              visible={this.state.defaultKittiesModal}
-              rounded
-              actionsBordered
-              onTouchOutside={() => {
-                this.unmountKittiesModal();
-              }}
 
-              footer={
-                <ModalFooter>
-                  <ModalButton
-                    style={{height: 40}}
-                    textStyle={{color: appliColor}}
-                    text="back to portfolio"
-                    bordered
-                    onPress={() => {
-                      this.unmountKittiesModal();
-                    }}
-                    key="button-1"
-                  />
-                </ModalFooter>
-              }
-            >
-              <ModalContent
-                style={{ flex: 1, backgroundColor: '#fff' }}
-              >
-              <KittiesModal 
-                content={[
-                  this.state.modalState,
-                  ]} />
+/*##############################################################################
+###################            DISPLAY              ############################
+###################            HTLM/JSX             ############################
+##############################################################################*/
+  render() {
+    return (
+      <View>
+        {this.flatlistCat()}
+        <ActionSheet
+          ref={this.getActionSheetRef}
+          title={title}
+          options={options}
+          cancelButtonIndex={CANCEL_INDEX}
+          destructiveButtonIndex={DESTRUCTIVE_INDEX}
+          onPress={(index) => {this.handlePress(index)}}
+        />
+        <View style={{ flex: 1 }}>
+        <Modal
+          height={0.8}
+          width={0.95}
+          visible={this.state.defaultKittiesModal}
+          rounded
+          actionsBordered
+          onTouchOutside={() => {
+            this.unmountKittiesModal();
+          }}
 
-              </ModalContent>
-            </Modal>
-            </View>
-            </View>
-        )
-    }
+          footer={
+            <ModalFooter>
+              <ModalButton
+                style={{height: 40}}
+                textStyle={{color: appliColor}}
+                text="back to portfolio"
+                bordered
+                onPress={() => {
+                  this.unmountKittiesModal();
+                }}
+                key="button-1"
+              />
+            </ModalFooter>
+          }
+        >
+          <ModalContent style={{ flex: 1, backgroundColor: '#fff' }}>
+            <KittiesModal content={[ this.state.modalState]} />
+          </ModalContent>
+        </Modal>
+      </View>
+      </View>
+    )
+  }
 }
 
-
+/* #############################################################################
+#####################    StyleSheet    #########################################
+##############################################################################*/
 const styles = StyleSheet.create({
   box_icone: {
     flex:1/2,
@@ -273,7 +281,9 @@ const styles = StyleSheet.create({
   },
 })
 
-
+/* #############################################################################
+Connect to redux ###############################################################
+##############################################################################*/
 const mapStateToProps = (state) => {
     return {
       imageUri: state.imageUri,
