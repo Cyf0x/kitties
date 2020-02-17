@@ -1,6 +1,6 @@
 # Kitties App
 
-Kitties is a native react cat profile management applicatio to manage cat profiles. You can edit existing profiles or add new ones by retrieving pictures with the phone camera or by taking pictures in the gallery. The possibility to choose random cat pictures is also available. The persitence of the application is ensured by redux and sqlight..<br />
+Kitties is a react-native cat profile management application to manage cat profiles. You can edit existing profiles or add new ones by retrieving pictures with the phone camera or by taking pictures in the gallery. The possibility to choose random cat pictures is also available. The persitence of the application is ensured by redux and sqlight..<br />
 
 ![](./Images/screenshoot/01.png)
 ![](./Images/screenshoot/02.png)
