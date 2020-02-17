@@ -44,7 +44,7 @@ const KittiesList_StackNavigator = createStackNavigator({
   KittiesList: {
     screen: KittiesList,
     navigationOptions: ({ navigation }) => ({
-      title: 'KittiesList',
+      title: 'Portfolio',
       headerLeft: () => <NavigationDrawerStructure navigationProps={navigation} />,
       headerStyle: {
         backgroundColor: backgroundColor,
@@ -55,7 +55,7 @@ const KittiesList_StackNavigator = createStackNavigator({
   Editkitties: {
     screen: Editkitties,
     navigationOptions: {
-      title: 'edit cat mode',
+      title: 'Edit cat mode',
       headerStyle: {
         backgroundColor: "white",
         elevation: 0,
@@ -84,7 +84,7 @@ const NewKitties_StackNavigator = createStackNavigator({
   NewKitties: {
     screen: NewKitties,
     navigationOptions: ({ navigation }) => ({
-        title: 'NewKitties',
+        title: 'Create a new cat',
         headerLeft: () => <NavigationDrawerStructure navigationProps={navigation} />,
         headerStyle: {
           backgroundColor: backgroundColor,
@@ -111,7 +111,7 @@ const FindNewKitties_StackNavigator = createStackNavigator({
     FindNewKitties: {
       screen: FindNewKitties,
       navigationOptions: ({ navigation }) => ({
-        title: 'God mode',
+        title: 'Adopt a cat',
         headerLeft: () => <NavigationDrawerStructure navigationProps={navigation} />,
         headerStyle: {
           backgroundColor: backgroundColor,
@@ -139,7 +139,7 @@ const DrawerNavigatorExample = createDrawerNavigator({
   Screen2: {
     screen: NewKitties_StackNavigator,
     navigationOptions: {
-      drawerLabel: 'God mode',
+      drawerLabel: 'Create a cat',
       drawerIcon: () => (
         <MaterialIcons name="account-circle" size={25} color="#F7931A" />
       )
