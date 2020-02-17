@@ -278,7 +278,7 @@ Check that all fields are filled in before you can register a new chat #########
   canBeSubmit() {
     const { biography, name, coat, breed } = this.state;
     return (
-      biography.length > 3 &&
+      biography.length > 0 &&
       name.length > 0 &&
       coat.length > 0 &&
       breed.length > 0
