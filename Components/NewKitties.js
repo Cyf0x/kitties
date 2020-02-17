@@ -93,6 +93,7 @@ class NewKitties extends React.Component {
 
 
 componentDidUpdate(previousProps, previousState) {
+  console.log(this.props.imageUri[0])
   const randomColor = color[Math.floor(Math.random() * color.length)];
   if (previousProps.imageUri[0] !== this.props.imageUri[0]) {
     this.setState({
@@ -102,15 +103,23 @@ componentDidUpdate(previousProps, previousState) {
     })
 }
 }
-
-  getPermissionAsync = async () => {
-    if (Constants.platform.ios) {
-      const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-      if (status !== 'granted') {
-        alert('Sorry, we need camera roll permissions to make this work!');
-      }
+getPermissionAsyncRoll = async () => {
+  if (Constants.platform.ios) {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+    if (status !== 'granted') {
+      alert('Sorry, we need camera roll permissions to make this work!');
+    } else {
+      this._pickImage()
     }
   }
+  this._pickImage()
+}
+
+getPermissionAsyncCamera = async () => {
+  const { status } = await Permissions.askAsync(Permissions.CAMERA);
+  this.setState({ hasCameraPermission: status === 'granted' }, () => { this.props.navigation.navigate('Camera', {'navigation': 'NewKitties', 'methode': 'ADD_IMAGE'})});
+}
+
 
   _pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -147,11 +156,10 @@ componentDidUpdate(previousProps, previousState) {
 
   handlePress = (index) => {
     if(index == 1){
-      this.props.navigation.navigate('Camera')
+      this.getPermissionAsyncCamera()
 
     } else if(index == 2){
-      this.getPermissionAsync();
-      this._pickImage()
+      this.getPermissionAsyncRoll();
 
     } else if(index == 3) {
       const randomElement = catPicture[Math.floor(Math.random() * catPicture.length)];
@@ -160,7 +168,6 @@ componentDidUpdate(previousProps, previousState) {
       this.props.dispatch(action)
       this.props.navigation.navigate('NewKitties')
     }
-
   }
 
   addNewImage() {
@@ -332,6 +339,7 @@ _toggleFavorite(_array) {
       </View>
       <View style={styles.footer}>
             <Button
+              disabled={!isEnabled}
               title="Create new cat"
               buttonStyle={styles.button}
               onPress={() => {this.insertUser()}}
