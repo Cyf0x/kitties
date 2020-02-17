@@ -59,3 +59,9 @@ The chat creation part allows you to create a new chat by fetching an image from
 this section works with the cryptokitties.com api.
 It allows you to retrieve a cat and its information and to import it by adopting it in the portfolio section.
 
+## persistence structure and redux
+
+Persitence is performed using an sqlight database and the use of redux to create a global state and update the different components of the application while respecting the routing rules of react native.
+To make it short with each modification or addition of a new chat. The local database is updated. It is retrieved and used to update the global redux state thanks to different actions.
+When starting the application, the database is read and the global state is defined by a redux action.
+I could have used the persistence of redux. But having never used redux before this week I chose this hybrid solution in order to guarantee a functional return of the application within the given time delay. 
