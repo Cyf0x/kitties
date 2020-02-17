@@ -24,7 +24,13 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.connect.kitties",
+      "buildNumber": "1.0.0"
+    },
+    "android": {
+      "package": "com.connecty.kitties",
+      "versionCode": 1
     }
   }
 }
