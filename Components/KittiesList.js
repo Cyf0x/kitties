@@ -15,11 +15,11 @@ const DESTRUCTIVE_INDEX = 4
 const options = [
   'Cancel',
   {
-    component: <Text style={{ color: 'orange', fontSize: 24 }}>Edit</Text>,
+    component: <Text style={{ color: 'orange', fontSize: 24 }}>Edit cat</Text>,
     height: 80,
   },
   {
-    component: <Text style={{ color: 'orange', fontSize: 24 }}>Abandon</Text>,
+    component: <Text style={{ color: 'orange', fontSize: 24 }}>abandons a cat</Text>,
     height: 80,
   },
 ]
@@ -50,9 +50,88 @@ class KittiesList extends React.Component {
     });
   }
 
-showActionSheet = () => this.actionSheet.show()
+showActionSheet = (item) => {
+  this.setState({item: item})
+  this.actionSheet.show(item)
+} 
 
 getActionSheetRef = ref => (this.actionSheet = ref)
+
+handlePress = (index) => {
+  if(index == 1){
+    console.log(this.state.item)
+    console.log(index)
+    this.props.navigation.navigate('Editkitties', {'info': this.state.item})
+
+  } else if(index == 2){
+    console.log(this.state.item)
+    console.log(index)
+    this.deleteCat(this.state.item)
+
+  }
+}
+
+
+/* #############################################################################
+      Insert de l'user dans la base local et redirection vers la page Hobby
+##############################################################################*/
+deleteCat(item) {
+  let query = "DELETE FROM cat where cat_id=?";
+  let params = [
+    item.cat_id
+  ];
+  console.log(params)
+  db.transaction(tx => {
+    tx.executeSql(
+      query,
+      params,
+      (tx, results) => {
+        console.log("Success", results);
+        this.recoverUser()
+      },
+      function(tx, err) {
+        console.log("Erreur" + err);
+      }
+    );
+  });
+}
+
+recoverUser() {
+let query = "select * from cat";
+let params = [];
+db.transaction(tx => {
+  tx.executeSql(
+    query,
+    params,
+    (_, { rows: { _array } }) => {
+      console.log(_array)
+      this._toggleFavorite(_array)
+    },
+    function(tx, err) {
+      console.log("Erreur" + err);
+    }
+  );
+});
+}
+
+_toggleFavorite(_array) {
+const action = { 
+  type: "ADD_CAT", 
+    value: _array
+  }
+this.props.dispatch(action)
+// this.setState({
+//   image: "",
+//   biography: "",
+//   name: "",
+//   breed: "",
+//   coat: "",
+//   displayImage: false
+// }, () => { })
+
+} 
+
+
 
   // Récupération user.id dans le fichier de function et affichage modal profil
   modalKittiesInfos = (item) => {
@@ -82,7 +161,7 @@ getActionSheetRef = ref => (this.actionSheet = ref)
   /* #############################################################################
 Viewing cats in the application from the state
 ##############################################################################*/
-flatlistCrypto = () => {
+flatlistCat = () => {
 
     const reduxSaveCat = this.props.myCats[0]
     return (
@@ -100,9 +179,9 @@ flatlistCrypto = () => {
 renderItem(item) {
   return (
     <TouchableOpacity  
-            onPress={() => {console.log(item)}}
+            onPress={() => {this.modalKittiesInfos(item)}}
             style={styles.box_icone}>
-            <TouchableOpacity style={styles.action} onPress={() => {this.showActionSheet()}}>
+            <TouchableOpacity style={styles.action} onPress={() => {this.showActionSheet(item)}}>
                 <Ionicons name="ios-add-circle-outline" size={30} color="#696969" />
             </TouchableOpacity>
             <Image style={styles.catPicture}  source={{uri: item.cat_image}}></Image>
@@ -114,16 +193,16 @@ renderItem(item) {
     render() {
         return (
             <View>
-                {this.flatlistCrypto()}
+                {this.flatlistCat()}
                 <ActionSheet
                   ref={this.getActionSheetRef}
                   title={title}
                   options={options}
                   cancelButtonIndex={CANCEL_INDEX}
                   destructiveButtonIndex={DESTRUCTIVE_INDEX}
-                  onPress={(index) => console.log(index)}
+                  onPress={(index) => {this.handlePress(index)}}
                 />
-                            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1 }}>
             <Modal
               height={0.8}
               width={0.95}
@@ -139,7 +218,7 @@ renderItem(item) {
                   <ModalButton
                     style={{height: 40}}
                     textStyle={{color: appliColor}}
-                    text="Revenir à la page profil"
+                    text="back to portfolio"
                     bordered
                     onPress={() => {
                       this.unmountKittiesModal();
