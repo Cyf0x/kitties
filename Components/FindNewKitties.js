@@ -90,19 +90,20 @@ Viewing cats in the application from the state
   renderItem(item) {
     return (
       <TouchableOpacity  
-              onPress={() => {console.log(item.cat_id)}}
+              onPress={() => {this.modalKittiesInfos(item)}}
               style={styles.box_icone}>
               <TouchableOpacity style={styles.action} onPress={() => {this.alert(item)}}>
                   <Ionicons name="ios-add-circle-outline" size={30} color="#696969" />
               </TouchableOpacity>
               <Image style={styles.catPicture}  source={{uri: item.cat_image}}></Image>
-              <Text style={styles.name}># {item.item.cat_id} - {item.cat_name} </Text>
+              <Text style={styles.name}># {item.cat_id} - {item.cat_name} </Text>
       </TouchableOpacity>
 
   )
   };
 
 alert(item){
+  console.log(item)
     return(
       Alert.alert(
         'Adopt a new cat ?',
@@ -130,11 +131,11 @@ insertUser(item) {
   let query =
     "INSERT INTO cat (cat_biography, cat_name, cat_breed, cat_coat, cat_image)VALUES(?,?,?,?,?)";
   let params = [
-    item.bio, 
-    item.name,
-    item.breed,
-    item.color,
-    item.image,
+    item.cat_biography, 
+    item.cat_name,
+    item.cat_breed,
+    item.cat_coat,
+    item.cat_image,
   ];
   db.transaction(tx => {
     tx.executeSql(
@@ -176,9 +177,6 @@ const action = {
   }
 this.props.dispatch(action)
 } 
-
-
-
 
 
 /* #############################################################################
