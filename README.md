@@ -4,12 +4,10 @@ Kitties is a native react cat profile management application.
 
 ## Installation
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar.
-
 
 ```bash
 git clone https://github.com/Cyf0x/kitties.git
-cd react-native-example
+cd kitties
 npm install
 npm start
 ```
