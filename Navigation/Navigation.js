@@ -6,6 +6,7 @@ import { createDrawerNavigator, DrawerNavigatorItems, DrawerView } from 'react-n
 import { MaterialIcons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import KittiesList from 'kitties/Components/KittiesList';
+import Editkitties from 'kitties/Components/Editkitties';
 import NewKitties from 'kitties/Components/NewKitties';
 import FindNewKitties from 'kitties/Components/FindNewKitties'
 import Camera from 'kitties/Components/Camera'
@@ -49,7 +50,33 @@ const KittiesList_StackNavigator = createStackNavigator({
         },
         headerTintColor: 'white',
       }),
-  },
+    },
+    Editkitties: {
+      screen: Editkitties,
+      navigationOptions: {
+        title: 'edit cat mode',
+        headerStyle: {
+          backgroundColor: "white",
+          elevation: 0,
+          shadowOpacity: 0,
+          borderBottomWidth: 0,
+        },
+        headerTintColor: 'black',
+      }
+    },
+    Camera: {
+      screen: Camera,
+      navigationOptions: {
+        title: 'Take a picture',
+        headerStyle: {
+          backgroundColor: "white",
+          elevation: 0,
+          shadowOpacity: 0,
+          borderBottomWidth: 0,
+        },
+        headerTintColor: 'black',
+      }
+    },
 })
 
 const NewKitties_StackNavigator = createStackNavigator({
@@ -127,8 +154,7 @@ const DrawerNavigatorExample = createDrawerNavigator({
 },
 
   {
-  initialRouteName: 'Screen2',
-  // unmountInactiveRoutes: true,
+  initialRouteName: 'Screen1',
   contentComponent: props => <DrawerContent {...props} />,
   drawerOpenRoute: 'DrawerOpen',
   drawerCloseRoute: 'DrawerClose',
