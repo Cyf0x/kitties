@@ -4,7 +4,6 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Permissions from 'expo-permissions';
 import { Camera } from 'expo-camera';
 import Constants from 'expo-constants';
-import { Button } from "react-native-elements";
 import { connect } from 'react-redux'
 
 class UseCamera extends React.Component {
@@ -36,10 +35,11 @@ class UseCamera extends React.Component {
       }
 
     savePictureToRedux() {
-      console.log('imageeeeeeeeeeeeee', this.state.imageUri)
-      const action = { type: "ADD_IMAGE", value: this.state.imageUri }
+      const methode = this.props.navigation.getParam('methode')
+      const action = { type: methode, value: this.state.imageUri }
       this.props.dispatch(action)
-      this.props.navigation.navigate('NewKitties')
+      const navigation = this.props.navigation.getParam('navigation')
+      this.props.navigation.navigate(navigation)
     }
   
 
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
   const mapStateToProps = (state) => {
     return {
       imageUri: state.imageUri,
-      newcats: state.newCats
+      editImage: state.editImage
     }
   }
   
